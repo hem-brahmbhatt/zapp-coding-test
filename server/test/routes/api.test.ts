@@ -2,7 +2,7 @@ import Database, { type Database as DatabaseType } from 'better-sqlite3';
 import express from 'express';
 import request from 'supertest';
 import { createApiRouter } from '../../src/routes/api';
-
+import { Inventory } from '../../src/types/inventory';
 describe('API Routes', () => {
   let db: DatabaseType;
   let app: express.Application;
@@ -52,11 +52,11 @@ describe('API Routes', () => {
 
       expect(response.body).toHaveLength(2);
       expect(response.body[0]).toMatchObject({
-        id: expect.any(Number),
+        id: 1,
         ...inventoryData[0],
       });
       expect(response.body[1]).toMatchObject({
-        id: expect.any(Number),
+        id: 2,
         ...inventoryData[1],
       });
     });
@@ -73,10 +73,16 @@ describe('API Routes', () => {
 
       await request(app).post('/api/inventory').send(invalidData).expect(400);
     });
+
+    it('should return 400 for empty array', async () => {
+        const invalidData: Inventory = [];
+  
+        await request(app).post('/api/inventory').send(invalidData).expect(400);
+    });
   });
 
   describe('GET /api/inventory', () => {
-    it('should return all inventory items', async () => {
+    it('should return all inventory items in descending order', async () => {
       // Insert test data
       const testData = [
         { quantity: 10, sku: 'TEST1', description: 'Item 1', store: 'Store A' },
@@ -95,14 +101,16 @@ describe('API Routes', () => {
       const response = await request(app).get('/api/inventory').expect(200);
 
       expect(response.body).toHaveLength(2);
-      expect(response.body[0]).toMatchObject({
-        id: expect.any(Number),
-        ...testData[0],
-      });
-      expect(response.body[1]).toMatchObject({
-        id: expect.any(Number),
-        ...testData[1],
-      });
+      expect(response.body).toMatchObject([
+        {
+            id: 2,
+            ...testData[1],
+        },
+        {
+            id: 1,
+            ...testData[0],
+        }
+      ]);
     });
   });
 });
