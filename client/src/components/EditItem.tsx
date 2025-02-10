@@ -28,7 +28,7 @@ export function EditItem({
       <div className={CLASSES.content}>
         <Input
           label="Quantity"
-          type="text"
+          type="number"
           value={item.quantity}
           onChange={(e) => updateItem({ quantity: parseInt(e.target.value) })}
         />
