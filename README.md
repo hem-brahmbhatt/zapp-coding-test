@@ -1,5 +1,7 @@
 # Zapp Coding Test
 
+https://github.com/user-attachments/assets/293f9f00-355a-4178-a479-b24cae7595d4
+
 ## Prerequisites
 
 Before running this project, make sure you have the following installed:
