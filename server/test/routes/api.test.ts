@@ -93,7 +93,7 @@ describe('API Routes', () => {
       expect(response.body.error).toMatch(/duplicate.*sku/i);
     });
 
-    it('should return 400 when SKU already exists in database', async () => {
+    it('should update item when SKU already exists in database', async () => {
       const item = {
         quantity: 5,
         sku: 'ABC123',
@@ -110,9 +110,17 @@ describe('API Routes', () => {
 
       const response = await request(app).post('/api/inventory').send([updatedItem]);
 
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toMatch(/duplicate.*sku/i);
+      expect(response.body[0]).toMatchObject({
+        id: 1,
+        ...updatedItem,
+      });
+
+      const getResponse = await request(app).get('/api/inventory');
+      expect(getResponse.body).toHaveLength(1);
+      expect(getResponse.body[0]).toMatchObject({
+        id: 1,
+        ...updatedItem,
+      });
     });
   });
 

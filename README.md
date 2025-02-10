@@ -63,8 +63,14 @@ On the server:
 
 ## Assumptions
 - Quantity can be negative to indicate whether the item has been oversold. Empty values for SKU, description and store are allowed for ease of use, with the intention of being filled out later.
-- Every time the CSV is uploaded, new rows get added to the database. We don't check if the row already exists in the database by checking the SKU, again for ease of use, e.g. the user doesn't have to manually remove rows from the database before uploading a new CSV. I could check if the SKU already exists in the database and update any found rows, but this is a simple solution for now.
-- Inventory list (i.e. the list of items in the database) is in descending order, so the latest items are at the top. The list is NOT paginated.
-- Items uploaded to the server are immutable. Only new rows added via a CSV can be added/edited/removed. Additional API routes can be added to edit existing items, especially since empty values are allowed.
+- The data is keyed by SKU. If rows with the same SKU are uploaded, the data will be overwritten.
+- Both front-end and back-end validates that duplicate SKUs are not added in the same request.
+
+- Inventory list (i.e. the list of items in the database) is in descending order, so the latest items are at the top. The following improvements would be needed to support a real API
+    - Pagination
+    - Parameterize the order
+    - Sorting
+    - Filtering
+
 - Front-end is not responsive. Expects a desktop browser.
-- Code structure, linting, formatting, modularity was prioritized over performance to allow for easier maintenance and for new features to be added more easily.
+

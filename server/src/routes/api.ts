@@ -16,19 +16,25 @@ export const createApiRouter = (db: Database) => {
         return res.status(400).json({ error: 'Request contains duplicate SKUs' });
       }
 
+      // We use ON CONFLICT to update the quantity if the SKU already exists
+      // See https://www.prisma.io/dataguide/postgresql/inserting-and-modifying-data/insert-on-conflict
       const insert = db.prepare(`
         INSERT INTO inventory (quantity, sku, description, store)
         VALUES (?, ?, ?, ?)
+        ON CONFLICT (sku) DO UPDATE SET
+          quantity = EXCLUDED.quantity,
+          description = EXCLUDED.description,
+          store = EXCLUDED.store
       `);
 
-      const insertAll = db.transaction((items: Inventory) => {
+      const insertMany = db.transaction((items: Inventory) => {
         const results = items.map((item) =>
           insert.run(item.quantity, item.sku, item.description, item.store)
         );
         return results;
       });
 
-      const results = insertAll(inventoryList);
+      const results = insertMany(inventoryList);
 
       const insertedItems = inventoryList.map((item, index) => ({
         id: results[index].lastInsertRowid,
@@ -38,10 +44,6 @@ export const createApiRouter = (db: Database) => {
       res.status(201).json(insertedItems);
     } catch (error) {
       if (error instanceof Error) {
-        // Check if error is due to SQLite UNIQUE constraint violation
-        if (error.message?.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Duplicate SKU found - SKU must be unique' });
-        }
         res.status(400).json({ error: error.message });
       } else {
         res.status(500).json({ error: 'Failed to create inventory' });
@@ -50,6 +52,11 @@ export const createApiRouter = (db: Database) => {
   });
 
   router.get('/inventory', (_: Request, res: Response) => {
+    // The following improvements would be needed to support a real API
+    // - Add pagination
+    // - Parameterize the order
+    // - Add sorting
+    // - Add filtering
     try {
       const select = db.prepare(`
         SELECT id, quantity, sku, description, store
