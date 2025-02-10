@@ -1,6 +1,4 @@
-- Used cursor to generate the project boilerplate:
- - React, rsbuild, typescript
- - node.js, express, ts-node
-
-
-
+- Used cursor for the following:
+  - generate the project boilerplate to use the following technologies:
+    - node.js, express, typescript, ts-node, React
+  - generate the CSS, making use of tailwindcss

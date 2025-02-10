@@ -51,4 +51,4 @@ export function Table<T extends TableData>({ data, columns, rowKey }: TableProps
       </table>
     </div>
   );
-} 
+}

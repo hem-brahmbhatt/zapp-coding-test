@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
-export const Item = z.object({
+export const InventoryItem = z.object({
+  id: z.number(),
   quantity: z.coerce.number(),
   sku: z.string(),
   description: z.string(),
   store: z.string(),
 });
 
-export type Item = z.infer<typeof Item>;
+export type InventoryItem = z.infer<typeof InventoryItem>;

@@ -2,26 +2,11 @@ import { useState } from 'react';
 import classNames from 'classnames';
 
 const CLASSES = {
-  base: [
-    'border-2',
-    'border-dashed',
-    'rounded-lg',
-    'p-8',
-    'text-center',
-    'cursor-pointer',
-    'mt-4'
-  ],
+  base: ['border-2', 'border-dashed', 'rounded-lg', 'p-8', 'text-center', 'cursor-pointer', 'mt-4'],
   state: {
-    dragging: [
-      'border-blue-500',
-      'bg-blue-50'
-    ],
-    default: [
-      'border-gray-300',
-      'bg-white',
-      'hover:border-gray-400'
-    ]
-  }
+    dragging: ['border-blue-500', 'bg-blue-50'],
+    default: ['border-gray-300', 'bg-white', 'hover:border-gray-400'],
+  },
 } as const;
 
 interface DragAndDropProps {
@@ -47,8 +32,8 @@ export function DragAndDrop({ onFileDrop, label }: DragAndDropProps) {
     setIsDragging(false);
 
     const files = Array.from(e.dataTransfer.files);
-    const csvFile = files.find(file => file.type === 'text/csv');
-    
+    const csvFile = files.find((file) => file.type === 'text/csv');
+
     if (csvFile) {
       onFileDrop(csvFile);
     }
@@ -67,4 +52,4 @@ export function DragAndDrop({ onFileDrop, label }: DragAndDropProps) {
       {label}
     </div>
   );
-} 
+}

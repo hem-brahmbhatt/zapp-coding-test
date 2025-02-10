@@ -1,32 +1,35 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { HelloResponseSchema, type HelloResponse } from './types/api';
+import Database from 'better-sqlite3';
+import { createApiRouter } from './routes/api';
+import { createAppRouter } from './routes/app';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Initialize in-memory database
+const db = new Database(':memory:');
+
+// Create inventory table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS inventory (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    quantity INTEGER NOT NULL,
+    sku TEXT NOT NULL,
+    description TEXT NOT NULL,
+    store TEXT NOT NULL
+  )
+`);
+
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../../client/dist')));
-
-// API routes
-app.get('/api/hello', (req: Request, res: Response) => {
-  const response: HelloResponse = {
-    message: 'Hello from the backend!'
-  };
-  // Validate response at runtime
-  HelloResponseSchema.parse(response);
-  res.json(response);
-});
-
-// Handle React routing, return all requests to React app
-app.get('*', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
-});
+app.use('/', createAppRouter());
+app.use('/api', createApiRouter(db));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-}); 
+});
+
+// Clean up database on exit
+process.on('exit', () => db.close());

@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { DragAndDrop } from './components/DragAndDrop';
 import { Preview } from './components/Preview';
 import { AddItem } from './components/AddItem';
-import { useStore } from './store/useStore';
+import { usePreviewStore } from './store/useStore';
 import { CsvSchema } from './types/csv';
 import { EditItem } from './components/EditItem';
 import type { Item } from './types/item';
-
+import { Inventory } from './components/Inventory';
 const CLASSES = {
   container: 'min-h-screen bg-gray-50',
   innerContainer: 'max-w-7xl mx-auto px-4 py-8',
@@ -14,7 +14,8 @@ const CLASSES = {
 };
 
 function App() {
-  const addItems = useStore(state => state.addItems);
+  const addItems = usePreviewStore((state) => state.addItems);
+  const items = usePreviewStore((state) => state.items);
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
   const [showAddItem, setShowAddItem] = useState<boolean>(false);
@@ -24,12 +25,12 @@ function App() {
       const rows = text
         .split('\n')
         .slice(1) // Remove header
-        .map(line => {
+        .map((line) => {
           const [quantity, sku, description, store] = line.split(',');
           return { quantity, sku, description, store };
         });
 
-        addItems(CsvSchema.parse(rows));
+      addItems(CsvSchema.parse(rows));
     } catch (error) {
       throw new Error('Error parsing CSV.', { cause: error });
     }
@@ -40,28 +41,33 @@ function App() {
   const editItem = (index: number, item: Item) => {
     setItemToEdit(item);
     setItemToEditIndex(index);
-  }
+  };
 
   const hideEditItem = () => {
     setItemToEdit(null);
     setItemToEditIndex(-1);
-  }
+  };
 
   const hideAddItem = () => {
     setShowAddItem(false);
-  }
+  };
 
   return (
     <div className={CLASSES.container}>
       <div className={CLASSES.innerContainer}>
         <h1 className={CLASSES.title}>Zapp Test</h1>
-        <DragAndDrop onFileDrop={handleCSVFile} label="Drop CSV file here" />
+        {items.length === 0 && (
+          <DragAndDrop onFileDrop={handleCSVFile} label="Drop CSV file here" />
+        )}
         <Preview onEditItem={editItem} onAddItem={() => setShowAddItem(true)} />
-        {shouldShowEditItem && <EditItem index={itemToEditIndex} item={itemToEdit} onSave={hideEditItem} />}
+        {shouldShowEditItem && (
+          <EditItem index={itemToEditIndex} item={itemToEdit} onSave={hideEditItem} />
+        )}
         {showAddItem && <AddItem onSave={hideAddItem} />}
+        <Inventory />
       </div>
     </div>
   );
 }
 
-export default App; 
+export default App;
