@@ -1,0 +1,13 @@
+{
+  "name": "ts-react-node-app",
+  "version": "1.0.0",
+  "description": "TypeScript React Node.js application",
+  "scripts": {
+    "build": "cd client && npx rsbuild build",
+    "start": "cd server && npx ts-node src/index.ts",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+} 
