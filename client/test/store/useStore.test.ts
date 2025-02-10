@@ -24,10 +24,12 @@ describe('useInventoryStore', () => {
         { id: 2, quantity: 10, sku: '456', description: 'Item 2', store: 'Store 2' },
       ];
 
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(mockInventory), {
-        status: 200,
-        statusText: 'OK',
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify(mockInventory), {
+          status: 200,
+          statusText: 'OK',
+        })
+      );
 
       const store = useInventoryStore.getState();
       await store.refreshInventory();
@@ -49,10 +51,12 @@ describe('useInventoryStore', () => {
     });
 
     it('should handle invalid JSON response', async () => {
-      mockFetch.mockResolvedValueOnce(new Response('invalid json', {
-        status: 200,
-        statusText: 'OK',
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response('invalid json', {
+          status: 200,
+          statusText: 'OK',
+        })
+      );
 
       const store = useInventoryStore.getState();
       await store.refreshInventory();
@@ -62,25 +66,29 @@ describe('useInventoryStore', () => {
     });
 
     it('should handle non-OK response', async () => {
-      mockFetch.mockResolvedValueOnce(new Response('Not Found', {
-        status: 404,
-        statusText: 'Not Found',
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: 'Not Found' }), {
+          status: 404,
+          statusText: 'Not Found',
+        })
+      );
 
       const store = useInventoryStore.getState();
       await store.refreshInventory();
 
-      expect(useInventoryStore.getState().refreshError).toBe('Server error: Not Found');
+      expect(useInventoryStore.getState().refreshError).toBe('Not Found');
       expect(useInventoryStore.getState().inventory).toEqual([]);
     });
   });
 
   describe('submitItems', () => {
     it('should successfully submit items', async () => {
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        statusText: 'OK',
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          statusText: 'OK',
+        })
+      );
 
       const items: Item[] = [
         { quantity: 5, sku: '123', description: 'Item 1', store: 'Store 1' },
@@ -111,23 +119,27 @@ describe('useInventoryStore', () => {
     });
 
     it('should handle non-OK response during submit', async () => {
-      mockFetch.mockResolvedValueOnce(new Response('Bad Request', {
-        status: 400,
-        statusText: 'Bad Request',
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: 'Duplicate SKU found' }), {
+          status: 400,
+          statusText: 'Bad Request',
+        })
+      );
 
       const items: Item[] = [{ quantity: 5, sku: '123', description: 'Item 1', store: 'Store 1' }];
       const store = useInventoryStore.getState();
 
       await expect(store.submitItems(items)).rejects.toThrow();
-      expect(useInventoryStore.getState().submitError).toBe('Server error: Bad Request');
+      expect(useInventoryStore.getState().submitError).toBe('Duplicate SKU found');
     });
 
     it('should handle invalid JSON response during submit', async () => {
-      mockFetch.mockResolvedValueOnce(new Response('invalid json', {
-        status: 200,
-        statusText: 'OK',
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response('invalid json', {
+          status: 200,
+          statusText: 'OK',
+        })
+      );
 
       const items: Item[] = [{ quantity: 5, sku: '123', description: 'Item 1', store: 'Store 1' }];
       const store = useInventoryStore.getState();
@@ -136,4 +148,4 @@ describe('useInventoryStore', () => {
       expect(useInventoryStore.getState().submitError).toBe('Invalid JSON response from server');
     });
   });
-}); 
+});

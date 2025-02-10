@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { usePreviewStore } from '../store/useStore';
 import type { Item } from '../types/item';
 import { Button, Input } from './ui';
@@ -6,6 +7,7 @@ const CLASSES = {
   container: 'mt-8',
   content: 'flex gap-6 w-full',
   buttonWrapper: 'flex gap-2 items-end',
+  error: 'text-red-500 mt-2',
 } as const;
 
 export function EditItem({
@@ -22,6 +24,7 @@ export function EditItem({
   onCancel: () => void;
 }) {
   const editItem = usePreviewStore((state) => state.editItem);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className={CLASSES.container}>
@@ -53,8 +56,12 @@ export function EditItem({
         <div className={CLASSES.buttonWrapper}>
           <Button
             onClick={() => {
-              editItem(index, item);
-              onSave();
+              try {
+                editItem(index, item);
+                onSave();
+              } catch (error) {
+                setError(error instanceof Error ? error.message : 'Unknown error');
+              }
             }}
           >
             Save
@@ -64,6 +71,7 @@ export function EditItem({
           </Button>
         </div>
       </div>
+      {error && <p className={CLASSES.error}>{error}</p>}
     </div>
   );
 }

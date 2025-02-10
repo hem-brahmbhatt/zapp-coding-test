@@ -9,6 +9,13 @@ export const createApiRouter = (db: Database) => {
     try {
       const inventoryList = InventorySchema.parse(req.body);
 
+      // Check for duplicate SKUs within the request
+      const skus = inventoryList.map((item) => item.sku);
+      const uniqueSkus = new Set(skus);
+      if (skus.length !== uniqueSkus.size) {
+        return res.status(400).json({ error: 'Request contains duplicate SKUs' });
+      }
+
       const insert = db.prepare(`
         INSERT INTO inventory (quantity, sku, description, store)
         VALUES (?, ?, ?, ?)
@@ -31,6 +38,10 @@ export const createApiRouter = (db: Database) => {
       res.status(201).json(insertedItems);
     } catch (error) {
       if (error instanceof Error) {
+        // Check if error is due to SQLite UNIQUE constraint violation
+        if (error.message?.includes('UNIQUE constraint failed')) {
+          return res.status(400).json({ error: 'Duplicate SKU found - SKU must be unique' });
+        }
         res.status(400).json({ error: error.message });
       } else {
         res.status(500).json({ error: 'Failed to create inventory' });

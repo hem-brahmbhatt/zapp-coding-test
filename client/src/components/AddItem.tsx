@@ -6,6 +6,7 @@ const CLASSES = {
   container: 'mt-8',
   content: 'flex gap-6 w-full',
   buttonWrapper: 'flex gap-2 items-end',
+  error: 'text-red-500 mt-2',
 } as const;
 
 export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: () => void }) {
@@ -15,6 +16,7 @@ export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: ()
     description: '',
     store: '',
   });
+  const [error, setError] = useState<string | null>(null);
 
   const addItem = usePreviewStore((state) => state.addItem);
 
@@ -59,9 +61,13 @@ export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: ()
         <div className={CLASSES.buttonWrapper}>
           <Button
             onClick={() => {
-              addItem(item);
-              resetInputs();
-              onSave();
+              try {
+                addItem(item);
+                resetInputs();
+                onSave();
+              } catch (error) {
+                setError(error instanceof Error ? error.message : 'An unknown error occurred');
+              }
             }}
           >
             Add
@@ -71,6 +77,7 @@ export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: ()
           </Button>
         </div>
       </div>
+      {error && <p className={CLASSES.error}>{error}</p>}
     </div>
   );
 }

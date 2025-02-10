@@ -14,19 +14,19 @@ function App() {
   const items = usePreviewStore((state) => state.items);
 
   const handleCSVFile = async (file: File) => {
-    try {
-      const text = await file.text();
-      const rows = text
-        .split('\n')
-        .slice(1) // Remove header
-        .map((line) => {
-          const [quantity, sku, description, store] = line.split(',');
-          return { quantity, sku, description, store };
-        });
+    const text = await file.text();
+    const rows = text
+      .split('\n')
+      .slice(1) // Remove header
+      .map((line) => {
+        const [quantity, sku, description, store] = line.split(',');
+        return { quantity, sku, description, store };
+      });
 
+    try {
       addItems(CsvSchema.parse(rows));
     } catch (error) {
-      throw new Error('Error parsing CSV.', { cause: error });
+      throw new Error('Error parsing CSV.');
     }
   };
 

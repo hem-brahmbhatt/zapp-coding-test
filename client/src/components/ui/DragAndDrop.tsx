@@ -10,12 +10,13 @@ const CLASSES = {
 } as const;
 
 interface DragAndDropProps {
-  onFileDrop: (file: File) => void;
+  onFileDrop: (file: File) => Promise<void>;
   label: string;
 }
 
 export function DragAndDrop({ onFileDrop, label }: DragAndDropProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -27,15 +28,19 @@ export function DragAndDrop({ onFileDrop, label }: DragAndDropProps) {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    const csvFile = files.find((file) => file.type === 'text/csv');
+    try {
+      const files = Array.from(e.dataTransfer.files);
+      const csvFile = files.find((file) => file.type === 'text/csv');
 
-    if (csvFile) {
-      onFileDrop(csvFile);
+      if (csvFile) {
+        await onFileDrop(csvFile);
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
     }
   };
 
@@ -50,6 +55,7 @@ export function DragAndDrop({ onFileDrop, label }: DragAndDropProps) {
       )}
     >
       {label}
+      {error && <p className="text-red-500">{error}</p>}
     </div>
   );
 }

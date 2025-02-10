@@ -1,33 +1,23 @@
-import Database, { type Database as DatabaseType } from 'better-sqlite3';
+import type { Database } from 'better-sqlite3';
 import express from 'express';
 import request from 'supertest';
 import { createApiRouter } from '../../src/routes/api';
 import { Inventory } from '../../src/types/inventory';
+import { createDatabase } from '../../src/db';
+
 describe('API Routes', () => {
-  let db: DatabaseType;
+  let db: Database;
   let app: express.Application;
 
   beforeEach(() => {
-    // Create a new in-memory database for each test
-    db = new Database(':memory:');
-    db.exec(`
-      CREATE TABLE inventory (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        quantity INTEGER NOT NULL,
-        sku TEXT NOT NULL,
-        description TEXT NOT NULL,
-        store TEXT NOT NULL
-      )
-    `);
+    db = createDatabase();
 
-    // Create a new express app and apply our router
     app = express();
     app.use(express.json());
     app.use('/api', createApiRouter(db));
   });
 
   afterEach(() => {
-    // Clean up database after each test
     db.close();
   });
 
@@ -79,11 +69,55 @@ describe('API Routes', () => {
 
       await request(app).post('/api/inventory').send(invalidData).expect(400);
     });
+
+    it('should return 400 for requst with duplicate SKUs', async () => {
+      const duplicateItems = [
+        {
+          sku: 'ABC123',
+          quantity: 5,
+          description: 'First item',
+          store: 'Store A',
+        },
+        {
+          sku: 'ABC123',
+          quantity: 10,
+          description: 'Second item',
+          store: 'Store B',
+        },
+      ];
+
+      const response = await request(app).post('/api/inventory').send(duplicateItems);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toMatch(/duplicate.*sku/i);
+    });
+
+    it('should return 400 when SKU already exists in database', async () => {
+      const item = {
+        quantity: 5,
+        sku: 'ABC123',
+        description: 'Item',
+        store: 'Store A',
+      };
+
+      await request(app).post('/api/inventory').send([item]).expect(201);
+
+      const updatedItem = {
+        ...item,
+        description: 'Updated Item',
+      };
+
+      const response = await request(app).post('/api/inventory').send([updatedItem]);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toMatch(/duplicate.*sku/i);
+    });
   });
 
   describe('GET /api/inventory', () => {
     it('should return all inventory items in descending order', async () => {
-      // Insert test data
       const testData = [
         { quantity: 10, sku: 'TEST1', description: 'Item 1', store: 'Store A' },
         { quantity: 20, sku: 'TEST2', description: 'Item 2', store: 'Store B' },

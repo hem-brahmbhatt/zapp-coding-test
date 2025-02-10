@@ -13,6 +13,7 @@ const CLASSES = {
   table: 'flex-1 flex flex-col',
   itemActions: 'flex flex-col justify-start gap-4 pt-[3.7rem]',
   itemActionsButtonGroup: 'flex gap-2',
+  error: 'text-red-500',
 } as const;
 
 export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
@@ -25,6 +26,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
   const [showAddItem, setShowAddItem] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (items.length === 0) return null;
 
@@ -75,16 +77,21 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
                 <Button
                   variant="primary"
                   onClick={async () => {
-                    await submitItems(items);
-                    await refreshInventory();
-                    clearItems();
-                    onSubmitItems?.();
+                    try {
+                      await submitItems(items);
+                      await refreshInventory();
+                      clearItems();
+                      onSubmitItems?.();
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : 'Failed to submit items');
+                    }
                   }}
                 >
                   Submit
                 </Button>
               </div>
             )}
+            {error && <div className={CLASSES.error}>{error}</div>}
           </div>
           <div className={CLASSES.itemActions}>
             {items.map((_, index) => (

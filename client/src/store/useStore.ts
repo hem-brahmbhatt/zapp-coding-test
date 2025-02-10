@@ -23,19 +23,38 @@ interface InventoryStore {
 export const usePreviewStore = create<PreviewStore>((set) => ({
   items: [],
   addItems: (items: Item[]) =>
-    set((state) => ({
-      items: [...state.items, ...items],
-    })),
-  addItem: (row: Item) =>
-    set((state) => ({
-      items: [...state.items, row],
-    })),
+    set((state) => {
+      const duplicateSku = items.find((item) =>
+        state.items.some((existing) => existing.sku === item.sku)
+      );
+      if (duplicateSku) {
+        throw new Error(`Item with SKU ${duplicateSku.sku} already exists`);
+      }
+      return {
+        items: [...state.items, ...items],
+      };
+    }),
+  addItem: (item: Item) =>
+    set((state) => {
+      if (state.items.some((row) => item.sku === row.sku)) {
+        throw new Error(`Item with SKU ${item.sku} already exists`);
+      }
+      return {
+        items: [...state.items, item],
+      };
+    }),
   removeItem: (index) =>
     set((state) => ({
       items: state.items.filter((_, i) => i !== index),
     })),
   editItem: (index, updatedItem) =>
     set((state) => {
+      const hasDuplicateSku = state.items.some(
+        (item, i) => i !== index && item.sku === updatedItem.sku
+      );
+      if (hasDuplicateSku) {
+        throw new Error(`Cannot update: Item with SKU ${updatedItem.sku} already exists`);
+      }
       return {
         items: state.items.map((row, rowIndex) => (rowIndex === index ? updatedItem : row)),
       };
@@ -86,15 +105,17 @@ export const useInventoryStore = create<InventoryStore>((set) => ({
 }));
 
 async function parseResponse(response: Response) {
-  if (!response.ok) {
-    throw new Error(`Server error: ${response.statusText}`);
-  }
-
   let data;
+
   try {
     data = await response.json();
   } catch (err) {
     throw new Error('Invalid JSON response from server');
   }
+
+  if (!response.ok) {
+    throw new Error(data.error);
+  }
+
   return data;
 }
