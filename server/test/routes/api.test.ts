@@ -75,9 +75,9 @@ describe('API Routes', () => {
     });
 
     it('should return 400 for empty array', async () => {
-        const invalidData: Inventory = [];
-  
-        await request(app).post('/api/inventory').send(invalidData).expect(400);
+      const invalidData: Inventory = [];
+
+      await request(app).post('/api/inventory').send(invalidData).expect(400);
     });
   });
 
@@ -103,13 +103,13 @@ describe('API Routes', () => {
       expect(response.body).toHaveLength(2);
       expect(response.body).toMatchObject([
         {
-            id: 2,
-            ...testData[1],
+          id: 2,
+          ...testData[1],
         },
         {
-            id: 1,
-            ...testData[0],
-        }
+          id: 1,
+          ...testData[0],
+        },
       ]);
     });
   });

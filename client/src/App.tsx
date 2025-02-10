@@ -30,7 +30,6 @@ function App() {
     }
   };
 
-
   return (
     <div className={CLASSES.container}>
       <div className={CLASSES.innerContainer}>

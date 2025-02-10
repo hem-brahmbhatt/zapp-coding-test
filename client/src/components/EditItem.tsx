@@ -6,17 +6,19 @@ import { Button, Input } from './ui';
 const CLASSES = {
   container: 'mt-8',
   content: 'flex gap-6 w-full',
-  buttonWrapper: 'flex flex-col justify-end mb-[2px]',
+  buttonWrapper: 'flex gap-2 items-end',
 } as const;
 
 export function EditItem({
   index,
   item,
   onSave,
+  onCancel,
 }: {
   index: number;
   item: Item;
   onSave: () => void;
+  onCancel: () => void;
 }) {
   const [quantity, setQuantity] = useState(item.quantity);
   const [sku, setSku] = useState(item.sku);
@@ -44,7 +46,6 @@ export function EditItem({
         <Input label="Store" type="text" value={store} onChange={(e) => setStore(e.target.value)} />
         <div className={CLASSES.buttonWrapper}>
           <Button
-            variant="warning"
             onClick={() => {
               editItem(index, {
                 quantity,
@@ -56,6 +57,9 @@ export function EditItem({
             }}
           >
             Save
+          </Button>
+          <Button variant="danger" onClick={onCancel}>
+            Cancel
           </Button>
         </div>
       </div>

@@ -5,10 +5,10 @@ import { Button, Input } from './ui';
 const CLASSES = {
   container: 'mt-8',
   content: 'flex gap-6 w-full',
-  buttonWrapper: 'flex flex-col justify-end mb-[2px]',
+  buttonWrapper: 'flex gap-2 items-end',
 } as const;
 
-export function AddItem({ onSave }: { onSave: () => void }) {
+export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: () => void }) {
   const [quantity, setQuantity] = useState(0);
   const [sku, setSku] = useState('');
   const [description, setDescription] = useState('');
@@ -55,6 +55,9 @@ export function AddItem({ onSave }: { onSave: () => void }) {
             }}
           >
             Add
+          </Button>
+          <Button variant="danger" onClick={onCancel}>
+            Cancel
           </Button>
         </div>
       </div>

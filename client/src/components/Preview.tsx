@@ -14,11 +14,7 @@ const CLASSES = {
   actionsButtonGroup: 'mt-4 flex gap-2',
 } as const;
 
-export function Preview({
-  onSubmitItems,
-}: {
-  onSubmitItems?: () => void;
-}) {
+export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
   const items = usePreviewStore((state) => state.items);
   const submitItems = useInventoryStore((state) => state.submitItems);
   const refreshInventory = useInventoryStore((state) => state.refreshInventory);
@@ -27,8 +23,7 @@ export function Preview({
 
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
-    const [showAddItem, setShowAddItem] = useState<boolean>(false);
-
+  const [showAddItem, setShowAddItem] = useState<boolean>(false);
 
   if (items.length === 0) return null;
 
@@ -39,7 +34,9 @@ export function Preview({
     { name: 'store', header: 'Store' },
   ];
 
-  const shouldShowEditItem = itemToEdit && itemToEditIndex !== -1;
+  const showEditItem = itemToEdit && itemToEditIndex !== -1;
+
+  const showActions = !showAddItem && !showEditItem;
 
   const editItem = (index: number, item: Item) => {
     setItemToEdit(item);
@@ -62,22 +59,24 @@ export function Preview({
         <div className={CLASSES.tableSection}>
           <div className="flex-1 flex flex-col">
             <Table data={items} columns={columns} rowKey="sku" />
-            <div className={CLASSES.actionsButtonGroup}>
-              <Button variant="primary" onClick={() => setShowAddItem(true)}>
-                Add Item
-              </Button>
-              <Button
-                variant="primary"
-                onClick={async () => {
-                  await submitItems(items);
-                  await refreshInventory();
-                  clearItems();
-                  onSubmitItems?.();
-                }}
-              >
-                Submit
-              </Button>
-            </div>
+            {showActions && (
+              <div className={CLASSES.actionsButtonGroup}>
+                <Button variant="primary" onClick={() => setShowAddItem(true)}>
+                  Add Item
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={async () => {
+                    await submitItems(items);
+                    await refreshInventory();
+                    clearItems();
+                    onSubmitItems?.();
+                  }}
+                >
+                  Submit
+                </Button>
+              </div>
+            )}
           </div>
           <div className={CLASSES.itemActions}>
             {items.map((_, index) => (
@@ -92,10 +91,15 @@ export function Preview({
             ))}
           </div>
         </div>
-        {shouldShowEditItem && (
-          <EditItem index={itemToEditIndex} item={itemToEdit} onSave={hideEditItem} />
+        {showEditItem && (
+          <EditItem
+            index={itemToEditIndex}
+            item={itemToEdit}
+            onSave={hideEditItem}
+            onCancel={hideEditItem}
+          />
         )}
-        {showAddItem && <AddItem onSave={hideAddItem} />}
+        {showAddItem && <AddItem onSave={hideAddItem} onCancel={hideAddItem} />}
       </div>
     </div>
   );
