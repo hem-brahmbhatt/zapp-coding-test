@@ -28,14 +28,13 @@ The app will be available at `http://localhost:5000`
 Drag and drop the example.csv file to the drag and drop area to see the app in action.
 
 ## Testing
-Only includes server tests, which can be run via the following.
+Tests coverage added for API routes and front-end store.
 
 ```bash
-cd server;
 npm run test
 ```
 
-Front-end tests have not been written for the sake of time. If I were to include these tests, I would use:
+Front-end component tests have not been written for the sake of time. If I were to include these tests, I would use:
 - react-testing-library
 - jest
 
