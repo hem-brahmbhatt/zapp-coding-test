@@ -9,9 +9,10 @@ const CLASSES = {
   title: 'text-xl font-bold mb-4',
   content: 'flex flex-col gap-4 w-full border-2 border-dashed rounded-lg p-8 border-gray-300',
   tableSection: 'flex gap-4',
+  tableActions: 'mt-4 flex gap-2',
+  table: 'flex-1 flex flex-col',
   itemActions: 'flex flex-col justify-start gap-4 pt-[3.7rem]',
   itemActionsButtonGroup: 'flex gap-2',
-  actionsButtonGroup: 'mt-4 flex gap-2',
 } as const;
 
 export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
@@ -38,6 +39,13 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
 
   const showActions = !showAddItem && !showEditItem;
 
+  const updateItem = (item: Partial<Item>) => {
+    setItemToEdit((prevItem) => {
+      if (!prevItem) return null;
+      return { ...prevItem, ...item };
+    });
+  };
+
   const editItem = (index: number, item: Item) => {
     setItemToEdit(item);
     setItemToEditIndex(index);
@@ -57,10 +65,10 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
       <h2 className={CLASSES.title}>Preview</h2>
       <div className={CLASSES.content}>
         <div className={CLASSES.tableSection}>
-          <div className="flex-1 flex flex-col">
+          <div className={CLASSES.table}>
             <Table data={items} columns={columns} rowKey="sku" />
             {showActions && (
-              <div className={CLASSES.actionsButtonGroup}>
+              <div className={CLASSES.tableActions}>
                 <Button variant="primary" onClick={() => setShowAddItem(true)}>
                   Add Item
                 </Button>
@@ -95,6 +103,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
           <EditItem
             index={itemToEditIndex}
             item={itemToEdit}
+            updateItem={updateItem}
             onSave={hideEditItem}
             onCancel={hideEditItem}
           />

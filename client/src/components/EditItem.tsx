@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { usePreviewStore } from '../store/useStore';
 import type { Item } from '../types/item';
 import { Button, Input } from './ui';
@@ -12,19 +11,16 @@ const CLASSES = {
 export function EditItem({
   index,
   item,
+  updateItem,
   onSave,
   onCancel,
 }: {
   index: number;
   item: Item;
+  updateItem: (item: Partial<Item>) => void;
   onSave: () => void;
   onCancel: () => void;
 }) {
-  const [quantity, setQuantity] = useState(item.quantity);
-  const [sku, setSku] = useState(item.sku);
-  const [description, setDescription] = useState(item.description);
-  const [store, setStore] = useState(item.store);
-
   const editItem = usePreviewStore((state) => state.editItem);
 
   return (
@@ -33,26 +29,31 @@ export function EditItem({
         <Input
           label="Quantity"
           type="text"
-          value={quantity}
-          onChange={(e) => setQuantity(parseInt(e.target.value))}
+          value={item.quantity}
+          onChange={(e) => updateItem({ quantity: parseInt(e.target.value) })}
         />
-        <Input label="SKU" type="text" value={sku} onChange={(e) => setSku(e.target.value)} />
+        <Input
+          label="SKU"
+          type="text"
+          value={item.sku}
+          onChange={(e) => updateItem({ sku: e.target.value })}
+        />
         <Input
           label="Description"
           type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={item.description}
+          onChange={(e) => updateItem({ description: e.target.value })}
         />
-        <Input label="Store" type="text" value={store} onChange={(e) => setStore(e.target.value)} />
+        <Input
+          label="Store"
+          type="text"
+          value={item.store}
+          onChange={(e) => updateItem({ store: e.target.value })}
+        />
         <div className={CLASSES.buttonWrapper}>
           <Button
             onClick={() => {
-              editItem(index, {
-                quantity,
-                sku,
-                description,
-                store,
-              });
+              editItem(index, item);
               onSave();
             }}
           >

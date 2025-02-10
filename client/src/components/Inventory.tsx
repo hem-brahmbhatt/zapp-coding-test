@@ -5,7 +5,7 @@ import { Table, Button } from './ui';
 const CLASSES = {
   container: 'mt-8',
   title: 'text-xl font-bold mb-4',
-  content: 'flex gap-4 w-full',
+  content: 'flex gap-4 w-full flex-1 flex-col',
   itemActions: 'flex flex-col justify-start gap-4 pt-[3.7rem]',
   itemActionsButtonGroup: 'flex gap-2',
   actionsButtonGroup: 'mt-4 flex gap-2',
@@ -34,18 +34,16 @@ export function Inventory() {
     <div className={CLASSES.container}>
       <h2 className={CLASSES.title}>Inventory</h2>
       <div className={CLASSES.content}>
-        <div className="flex-1 flex flex-col">
-          <Table data={inventory} columns={columns} rowKey="id" />
-          <div className={CLASSES.actionsButtonGroup}>
-            <Button
-              variant="primary"
-              onClick={async () => {
-                await refreshInventory();
-              }}
-            >
-              Refresh
-            </Button>
-          </div>
+        <Table data={inventory} columns={columns} rowKey="id" />
+        <div className={CLASSES.actionsButtonGroup}>
+          <Button
+            variant="primary"
+            onClick={async () => {
+              await refreshInventory();
+            }}
+          >
+            Refresh
+          </Button>
         </div>
       </div>
     </div>
