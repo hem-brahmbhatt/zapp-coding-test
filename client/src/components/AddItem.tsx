@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { usePreviewStore } from '../store/useStore';
-import { Button } from './Button';
-import { Input } from './Input';
+import { Button, Input } from './ui';
 
 const CLASSES = {
   container: 'mt-8',

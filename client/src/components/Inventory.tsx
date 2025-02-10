@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useInventoryStore } from '../store/useStore';
-import { Table } from './Table';
-import { Button } from './Button';
+import { Table, Button } from './ui';
 
 const CLASSES = {
   container: 'mt-8',

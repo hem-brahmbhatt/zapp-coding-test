@@ -8,7 +8,7 @@ export const createAppRouter = () => {
   router.use(express.static(path.resolve('../client/dist')));
 
   // Handle React routing, return all requests to React app
-  router.get('*', (_: Request, res: Response) => {
+  router.get('/', (_: Request, res: Response) => {
     res.sendFile(path.resolve('../client/dist/index.html'));
   });
 

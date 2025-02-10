@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { usePreviewStore } from '../store/useStore';
-import { Button } from './Button';
-import { Input } from './Input';
 import type { Item } from '../types/item';
+import { Button, Input } from './ui';
+
 const CLASSES = {
   container: 'mt-8',
   content: 'flex gap-6 w-full',

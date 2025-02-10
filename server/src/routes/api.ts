@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Database } from 'better-sqlite3';
+import type { Database } from 'better-sqlite3';
 import { Inventory, InventorySchema } from '../types/inventory';
 
 export const createApiRouter = (db: Database) => {

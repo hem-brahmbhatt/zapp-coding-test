@@ -1,12 +1,8 @@
-import { useState } from 'react';
-import { DragAndDrop } from './components/DragAndDrop';
-import { Preview } from './components/Preview';
-import { AddItem } from './components/AddItem';
+import { DragAndDrop } from './components/ui';
+import { Preview, Inventory } from './components';
 import { usePreviewStore } from './store/useStore';
 import { CsvSchema } from './types/csv';
-import { EditItem } from './components/EditItem';
-import type { Item } from './types/item';
-import { Inventory } from './components/Inventory';
+
 const CLASSES = {
   container: 'min-h-screen bg-gray-50',
   innerContainer: 'max-w-7xl mx-auto px-4 py-8',
@@ -16,9 +12,7 @@ const CLASSES = {
 function App() {
   const addItems = usePreviewStore((state) => state.addItems);
   const items = usePreviewStore((state) => state.items);
-  const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
-  const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
-  const [showAddItem, setShowAddItem] = useState<boolean>(false);
+
   const handleCSVFile = async (file: File) => {
     try {
       const text = await file.text();
@@ -36,21 +30,6 @@ function App() {
     }
   };
 
-  const shouldShowEditItem = itemToEdit && itemToEditIndex !== -1;
-
-  const editItem = (index: number, item: Item) => {
-    setItemToEdit(item);
-    setItemToEditIndex(index);
-  };
-
-  const hideEditItem = () => {
-    setItemToEdit(null);
-    setItemToEditIndex(-1);
-  };
-
-  const hideAddItem = () => {
-    setShowAddItem(false);
-  };
 
   return (
     <div className={CLASSES.container}>
@@ -59,11 +38,7 @@ function App() {
         {items.length === 0 && (
           <DragAndDrop onFileDrop={handleCSVFile} label="Drop CSV file here" />
         )}
-        <Preview onEditItem={editItem} onAddItem={() => setShowAddItem(true)} />
-        {shouldShowEditItem && (
-          <EditItem index={itemToEditIndex} item={itemToEdit} onSave={hideEditItem} />
-        )}
-        {showAddItem && <AddItem onSave={hideAddItem} />}
+        <Preview />
         <Inventory />
       </div>
     </div>
