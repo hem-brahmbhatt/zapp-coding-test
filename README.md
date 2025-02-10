@@ -14,6 +14,8 @@ npm run install:all
 
 ## Start the project
 
+_Note: Project was last tested using Node.js v20.12.2_
+
 ```bash
 npm run build;
 npm run start;
