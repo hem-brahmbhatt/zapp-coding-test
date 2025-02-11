@@ -14,7 +14,7 @@ export function AddItem({
   onSave,
   onCancel,
 }: {
-  onSave: (item: Item) => void;
+  onSave: (item: Item) => Promise<void>;
   onCancel: () => void;
 }) {
   const [item, setItem] = useState({
@@ -65,10 +65,10 @@ export function AddItem({
         />
         <div className={CLASSES.buttonWrapper}>
           <Button
-            onClick={() => {
+            onClick={async () => {
               try {
                 const validatedItem = Item.parse(item);
-                onSave(validatedItem);
+                await onSave(validatedItem);
                 resetInputs();
               } catch (error) {
                 if (error instanceof ZodError) {

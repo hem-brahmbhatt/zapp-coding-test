@@ -18,7 +18,7 @@ export function EditItem({
 }: {
   item: Item;
   updateItem: (item: Partial<Item>) => void;
-  onSave: (validatedItem: Item) => void;
+  onSave: (validatedItem: Item) => Promise<void>;
   onCancel: () => void;
 }) {
   const [error, setError] = useState<string | null>(null);
@@ -52,10 +52,10 @@ export function EditItem({
         />
         <div className={CLASSES.buttonWrapper}>
           <Button
-            onClick={() => {
+            onClick={async () => {
               try {
                 const validatedItem = Item.parse(item);
-                onSave(validatedItem);
+                await onSave(validatedItem);
               } catch (error) {
                 if (error instanceof ZodError) {
                   setError(error.issues[0].message);

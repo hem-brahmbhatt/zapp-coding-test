@@ -28,7 +28,7 @@ export function Inventory() {
   const refreshInventory = useInventoryStore((state) => state.refreshInventory);
   const removeItem = useInventoryStore((state) => state.removeItem);
   const editItem = useInventoryStore((state) => state.editItem);
-  const submitItems = useInventoryStore((state) => state.submitItems);
+  const createItem = useInventoryStore((state) => state.createItem);
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
   const [shouldShowAddItem, setShouldShowAddItem] = useState<boolean>(false);
@@ -49,9 +49,9 @@ export function Inventory() {
     });
   };
 
-  const handleEditItem = (validatedItem: Item) => {
+  const handleEditItem = async (validatedItem: Item) => {
     if (!itemToEdit) return;
-    editItem(itemToEdit, validatedItem);
+    await editItem(itemToEdit, validatedItem);
     hideEditItem();
   };
 
@@ -66,7 +66,7 @@ export function Inventory() {
   };
 
   const handleAddItem = async (item: Item) => {
-    await submitItems([item]);
+    await createItem(item);
     hideAddItem();
     await refreshInventory();
   };

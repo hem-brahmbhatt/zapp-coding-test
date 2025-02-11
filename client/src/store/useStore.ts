@@ -17,10 +17,12 @@ interface InventoryStore {
   submitError: string | null;
   deleteError: string | null;
   editError: string | null;
+  createError: string | null;
   refreshInventory: () => Promise<void>;
   submitItems: (items: Item[]) => Promise<void>;
   removeItem: (item: Item) => Promise<void>;
   editItem: (oldItem: Item, newItem: Item) => Promise<void>;
+  createItem: (item: Item) => Promise<void>;
 }
 
 export const usePreviewStore = create<PreviewStore>((set) => ({
@@ -71,6 +73,7 @@ export const useInventoryStore = create<InventoryStore>((set) => ({
   submitError: null,
   deleteError: null,
   editError: null,
+  createError: null,
   refreshInventory: async () => {
     try {
       const response = await fetch('/api/inventory');
@@ -151,6 +154,27 @@ export const useInventoryStore = create<InventoryStore>((set) => ({
       const errorMessage =
         err instanceof Error ? err.message : `Failed to edit item with SKU ${oldItem.sku}`;
       set({ editError: errorMessage });
+      throw err;
+    }
+  },
+  createItem: async (item) => {
+    try {
+      const response = await fetch(`/api/inventory/${item.sku}`, {
+        method: 'POST',
+        body: JSON.stringify(item),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      await parseResponse(response);
+      set((state) => ({
+        inventory: [...state.inventory, item],
+        createError: null,
+      }));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create item';
+      set({ createError: errorMessage });
       throw err;
     }
   },

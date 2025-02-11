@@ -58,6 +58,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
   const handleEditItem = (validatedItem: Item) => {
     editItem(itemToEditIndex, validatedItem);
     hideEditItem();
+    return Promise.resolve();
   };
 
   const hideEditItem = () => {
@@ -72,6 +73,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
   const handleAddItem = (item: Item) => {
     addItem(item);
     hideAddItem();
+    return Promise.resolve();
   };
 
   return (

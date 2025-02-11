@@ -3,6 +3,27 @@ import { Inventory, InventorySchema } from '../validator/inventory';
 import { getDatabase } from '../db';
 import { Item } from '../validator/item';
 
+export function createInventoryItem(req: Request, res: Response) {
+  const { sku } = req.params;
+  const { quantity, description, store } = req.body;
+
+  const item = Item.parse(req.body);
+
+  const db = getDatabase();
+
+  const createItem = db.prepare(`
+    INSERT INTO inventory (quantity, sku, description, store)
+    VALUES (?, ?, ?, ?)
+  `);
+
+  try {
+    createItem.run(quantity, sku, description, store);
+    return res.status(200).json(item);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to create inventory item' });
+  }
+}
+
 export function createOrUpdateInventory(req: Request, res: Response) {
   try {
     const inventoryList = InventorySchema.parse(req.body);
@@ -73,7 +94,7 @@ export function getInventory(req: Request, res: Response) {
   }
 }
 
-export function deleteInventory(req: Request, res: Response) {
+export function deleteInventoryItem(req: Request, res: Response) {
   const { sku } = req.params;
   const db = getDatabase();
 
@@ -90,7 +111,7 @@ export function deleteInventory(req: Request, res: Response) {
   return res.status(200).json({ message: 'Success' });
 }
 
-export function updateInventory(req: Request, res: Response) {
+export function updateInventoryItem(req: Request, res: Response) {
   const { sku } = req.params;
   const { quantity, description, store } = req.body;
 
