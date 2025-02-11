@@ -50,29 +50,33 @@ On the front-end:
   - API calls are handled in the store
 - Zod
   - Validates the data + type inference
+- Vitest
+  - Tests the store and API calls
 
 On the server:
 - TypeScript
 - Node.js
 - Express
-  - serves the REST API routes for /api/inventory. There's no need for anything more complex currently, e.g. graphql
   - serves the front-end app
+  - serves the REST API routes for /api/inventory. If the front-end were more complex requiring different shapes of data, I would expose a graphql endpoint.
 - Better-sqlite3
-  - In-memory SQLite database
+  - Uses an in-memory SQLite database. The table is created on startup.
+  - A single table is used to store the inventory data, since there's no need for anything more complex
+  - Uses prepared statements instead of an ORM, since the data is simple. In a production environment, I would use an ORM to manage the database schema and interact with the database.
 - Zod
   - Validates the data + type inference
 - Jest
+  - Tests the API routes
 
 ## Assumptions
-- Quantity can be negative to indicate whether the item has been oversold. Empty values for SKU, description and store are allowed for ease of use, with the intention of being filled out later.
-- The data is keyed by SKU. If rows with the same SKU are uploaded, the data will be overwritten.
+- SKU is a mandatory value that must be provided, and of the format correct format. Quantity can be negative to indicate whether the item has been oversold. Empty values for description and store are allowed for ease of use, with the intention of being filled out later.
+- The data is keyed by SKU. If rows with the same SKU are uploaded, the data will be overwritten. In production, we would want to put limits in place for bulk updates across multiple rows.
 - Both front-end and back-end validates that duplicate SKUs are not added in the same request.
-
-- Inventory list (i.e. the list of items in the database) is in descending order, so the latest items are at the top. The following improvements would be needed to support a real API
+- Inventory list (i.e. the list of items in the database) is in descending order, so the latest items are at the top. 
+- The following improvements would be needed to support a real API
     - Pagination
     - Parameterize the order
     - Sorting
     - Filtering
-
-- Front-end is not responsive. Expects a desktop browser.
+- Front-end is not responsive for the sake of time. Try to run this on a desktop browser.
 

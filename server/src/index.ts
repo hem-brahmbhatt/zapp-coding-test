@@ -1,23 +1,23 @@
 import express from 'express';
 import cors from 'cors';
-import { createApiRouter } from './routes/api';
+import { createInventoryRouter } from './routes/inventory';
 import { createAppRouter } from './routes/app';
-import { createDatabase } from './db';
+import { createDatabase, closeDatabase } from './db';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const db = createDatabase();
+createDatabase();
 
 app.use(cors());
 app.use(express.json());
 
 app.use('/', createAppRouter());
-app.use('/api', createApiRouter(db));
+app.use('/api', createInventoryRouter());
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
 // Clean up database on exit
-process.on('exit', () => db.close());
+process.on('exit', () => closeDatabase());

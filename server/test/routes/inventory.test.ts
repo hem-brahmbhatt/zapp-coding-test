@@ -1,24 +1,22 @@
-import type { Database } from 'better-sqlite3';
 import express from 'express';
 import request from 'supertest';
-import { createApiRouter } from '../../src/routes/api';
-import { Inventory } from '../../src/types/inventory';
-import { createDatabase } from '../../src/db';
+import { createInventoryRouter } from '../../src/routes/inventory';
+import { Inventory } from '../../src/validator/inventory';
+import { resetDatabase, closeDatabase } from '../../src/db';
 
 describe('API Routes', () => {
-  let db: Database;
   let app: express.Application;
 
   beforeEach(() => {
-    db = createDatabase();
+    resetDatabase();
 
     app = express();
     app.use(express.json());
-    app.use('/api', createApiRouter(db));
+    app.use('/api', createInventoryRouter());
   });
 
   afterEach(() => {
-    db.close();
+    closeDatabase();
   });
 
   describe('POST /api/inventory', () => {
@@ -26,13 +24,13 @@ describe('API Routes', () => {
       const inventoryData = [
         {
           quantity: 10,
-          sku: 'ABC123',
+          sku: 'UK-1011',
           description: 'Test Item 1',
           store: 'Store A',
         },
         {
           quantity: 20,
-          sku: 'XYZ789',
+          sku: 'UK-1012',
           description: 'Test Item 2',
           store: 'Store B',
         },
@@ -51,17 +49,19 @@ describe('API Routes', () => {
       });
     });
 
-    it('should return 400 for invalid data', async () => {
+    it('should return 400 for invalid SKU', async () => {
       const invalidData = [
         {
-          quantity: 'not a number',
-          sku: 'ABC123',
+          quantity: 1,
+          sku: 'invalid SKU',
           description: 'Test Item',
           store: 'Store A',
         },
       ];
 
-      await request(app).post('/api/inventory').send(invalidData).expect(400);
+      const response = await request(app).post('/api/inventory').send(invalidData).expect(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toMatch(/sku/i);
     });
 
     it('should return 400 for empty array', async () => {
@@ -73,13 +73,13 @@ describe('API Routes', () => {
     it('should return 400 for requst with duplicate SKUs', async () => {
       const duplicateItems = [
         {
-          sku: 'ABC123',
+          sku: 'UK-1011',
           quantity: 5,
           description: 'First item',
           store: 'Store A',
         },
         {
-          sku: 'ABC123',
+          sku: 'UK-1011',
           quantity: 10,
           description: 'Second item',
           store: 'Store B',
@@ -94,15 +94,17 @@ describe('API Routes', () => {
     });
 
     it('should update item when SKU already exists in database', async () => {
+      // GIVEN
       const item = {
         quantity: 5,
-        sku: 'ABC123',
+        sku: 'UK-1011',
         description: 'Item',
         store: 'Store A',
       };
 
       await request(app).post('/api/inventory').send([item]).expect(201);
 
+      // WHEN
       const updatedItem = {
         ...item,
         description: 'Updated Item',
@@ -110,6 +112,7 @@ describe('API Routes', () => {
 
       const response = await request(app).post('/api/inventory').send([updatedItem]);
 
+      // THEN
       expect(response.body[0]).toMatchObject({
         id: 1,
         ...updatedItem,
@@ -126,31 +129,27 @@ describe('API Routes', () => {
 
   describe('GET /api/inventory', () => {
     it('should return all inventory items in descending order', async () => {
-      const testData = [
-        { quantity: 10, sku: 'TEST1', description: 'Item 1', store: 'Store A' },
-        { quantity: 20, sku: 'TEST2', description: 'Item 2', store: 'Store B' },
+      // GIVEN
+      const inventoryData = [
+        { quantity: 10, sku: 'UK-1011', description: 'Item 1', store: 'Store A' },
+        { quantity: 20, sku: 'UK-1012', description: 'Item 2', store: 'Store B' },
       ];
 
-      const insert = db.prepare(`
-        INSERT INTO inventory (quantity, sku, description, store)
-        VALUES (?, ?, ?, ?)
-      `);
+      await request(app).post('/api/inventory').send(inventoryData).expect(201);
 
-      testData.forEach((item) => {
-        insert.run(item.quantity, item.sku, item.description, item.store);
-      });
-
+      // WHEN
       const response = await request(app).get('/api/inventory').expect(200);
 
+      // THEN
       expect(response.body).toHaveLength(2);
       expect(response.body).toMatchObject([
         {
           id: 2,
-          ...testData[1],
+          ...inventoryData[1],
         },
         {
           id: 1,
-          ...testData[0],
+          ...inventoryData[0],
         },
       ]);
     });

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { usePreviewStore } from '../store/useStore';
-import type { Item } from '../types/item';
+import { Item } from '../types/item';
 import { Button, Input } from './ui';
+import { ZodError } from 'zod';
 
 const CLASSES = {
   container: 'mt-8',
@@ -57,10 +58,17 @@ export function EditItem({
           <Button
             onClick={() => {
               try {
-                editItem(index, item);
+                const validatedItem = Item.parse(item);
+                editItem(index, validatedItem);
                 onSave();
               } catch (error) {
-                setError(error instanceof Error ? error.message : 'Unknown error');
+                if (error instanceof ZodError) {
+                  setError(error.issues[0].message);
+                } else if (error instanceof Error) {
+                  setError(error.message);
+                } else {
+                  setError('An unknown error occurred');
+                }
               }
             }}
           >
