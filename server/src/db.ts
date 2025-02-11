@@ -21,6 +21,9 @@ export function createDatabase() {
 }
 
 export function getDatabase() {
+  if (!db) {
+    throw new Error('Database not found');
+  }
   return db;
 }
 

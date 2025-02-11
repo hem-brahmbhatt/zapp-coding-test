@@ -10,7 +10,13 @@ const CLASSES = {
   error: 'text-red-500 mt-2',
 } as const;
 
-export function AddItem({ onSave, onCancel }: { onSave: (item: Item) => void; onCancel: () => void }) {
+export function AddItem({
+  onSave,
+  onCancel,
+}: {
+  onSave: (item: Item) => void;
+  onCancel: () => void;
+}) {
   const [item, setItem] = useState({
     quantity: 0,
     sku: '',

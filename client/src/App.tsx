@@ -31,15 +31,16 @@ function App() {
     }
   };
 
-  const dragAndDropLabel = inventory.length > 0 ? 'Drop CSV file here to update inventory with matching SKUs' : 'Drop CSV file here to add to inventory';
+  const dragAndDropLabel =
+    inventory.length > 0
+      ? 'Drop CSV file here to update inventory with matching SKUs'
+      : 'Drop CSV file here to add to inventory';
 
   return (
     <div className={CLASSES.container}>
       <div className={CLASSES.innerContainer}>
         <h1 className={CLASSES.title}>Zapp Test</h1>
-        {items.length === 0 && (
-          <DragAndDrop onFileDrop={handleCSVFile} label={dragAndDropLabel} />
-        )}
+        {items.length === 0 && <DragAndDrop onFileDrop={handleCSVFile} label={dragAndDropLabel} />}
         <Preview />
         <Inventory />
       </div>

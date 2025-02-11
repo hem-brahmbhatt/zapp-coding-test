@@ -1,4 +1,3 @@
-import { ZodError } from 'zod';
 import { Request, Response } from 'express';
 import { Inventory, InventorySchema } from '../validator/inventory';
 import { getDatabase } from '../db';
@@ -6,17 +5,7 @@ import { Item } from '../validator/item';
 
 export function createOrUpdateInventory(req: Request, res: Response) {
   try {
-    let inventoryList: Item[];
-
-    // Parse the request body
-    try {
-      inventoryList = InventorySchema.parse(req.body);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({ error: error.message });
-      }
-      return res.status(400).json({ error: 'Failed to parse request body' });
-    }
+    const inventoryList = InventorySchema.parse(req.body);
 
     // Check for duplicate SKUs within the request
     const skus = inventoryList.map((item) => item.sku);
@@ -26,9 +15,6 @@ export function createOrUpdateInventory(req: Request, res: Response) {
     }
 
     const db = getDatabase();
-    if (!db) {
-      return res.status(500).json({ error: 'Database not found' });
-    }
 
     // We use ON CONFLICT to update the quantity if the SKU already exists
     // See https://www.prisma.io/dataguide/postgresql/inserting-and-modifying-data/insert-on-conflict
@@ -55,12 +41,12 @@ export function createOrUpdateInventory(req: Request, res: Response) {
       ...item,
     }));
 
-    res.status(201).json(insertedItems);
+    return res.status(201).json(insertedItems);
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
     }
-    res.status(500).json({ error: 'Failed to create inventory' });
+    return res.status(500).json({ error: 'Failed to create inventory' });
   }
 }
 
@@ -72,9 +58,6 @@ export function getInventory(req: Request, res: Response) {
   // - Add filtering
   try {
     const db = getDatabase();
-    if (!db) {
-      return res.status(500).json({ error: 'Database not found' });
-    }
 
     const select = db.prepare(`
           SELECT id, quantity, sku, description, store
@@ -83,19 +66,16 @@ export function getInventory(req: Request, res: Response) {
         `);
 
     const inventory = select.all();
-    res.json(inventory);
+    return res.json(inventory);
   } catch (error) {
     console.error('Error fetching inventory:', error);
-    res.status(500).json({ error: 'Failed to fetch inventory' });
+    return res.status(500).json({ error: 'Failed to fetch inventory' });
   }
 }
 
 export function deleteInventory(req: Request, res: Response) {
   const { sku } = req.params;
   const db = getDatabase();
-  if (!db) {
-    return res.status(500).json({ error: 'Database not found' });
-  }
 
   const deleteItem = db.prepare(`
     DELETE FROM inventory WHERE sku = ?
@@ -107,29 +87,16 @@ export function deleteInventory(req: Request, res: Response) {
     return res.status(404).json({ error: 'Inventory item not found' });
   }
 
-  res.status(200).json({ message: 'Success' });
+  return res.status(200).json({ message: 'Success' });
 }
 
 export function updateInventory(req: Request, res: Response) {
   const { sku } = req.params;
   const { quantity, description, store } = req.body;
 
-  let item: Item;
-
-  // Parse the request body
-  try {
-    item = Item.parse(req.body);
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return res.status(400).json({ error: error.message });
-    }
-    return res.status(400).json({ error: 'Failed to parse request body' });
-  }
+  const item = Item.parse(req.body);
 
   const db = getDatabase();
-  if (!db) {
-    return res.status(500).json({ error: 'Database not found' });
-  }
 
   const updateItem = db.prepare(`
     UPDATE inventory SET quantity = ?, description = ?, store = ? WHERE sku = ?
@@ -141,5 +108,5 @@ export function updateInventory(req: Request, res: Response) {
     return res.status(404).json({ error: 'Inventory item not found' });
   }
 
-  res.status(200).json(item);
+  return res.status(200).json(item);
 }
