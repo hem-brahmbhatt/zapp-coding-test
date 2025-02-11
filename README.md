@@ -10,7 +10,7 @@ _We’ve got some data in a CSV file and we want to transfer it over to a databa
 ## Prerequisites
 
 Before running this project, make sure you have the following installed:
-- Node.js (v20 or higher)
+- Node.js (v20 or higher) _Note: Project was last tested using Node.js v20.12.2_
 - npm (Node Package Manager)
 
 To install the dependencies, run the following command:
@@ -20,8 +20,6 @@ npm install
 ```
 
 ## Start the project
-
-_Note: Project was last tested using Node.js v20.12.2_
 
 ```bash
 npm run build;
