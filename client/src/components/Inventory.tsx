@@ -32,6 +32,7 @@ export function Inventory() {
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
   const [shouldShowAddItem, setShouldShowAddItem] = useState<boolean>(false);
+  const [itemToConfirm, setItemToConfirm] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => refreshInventory();
@@ -75,6 +76,15 @@ export function Inventory() {
     setShouldShowAddItem(false);
   };
 
+  const handleDeleteClick = (index: number) => {
+    setItemToConfirm(index);
+  };
+
+  const handleConfirmDelete = (item: Item) => {
+    setItemToConfirm(null);
+    removeItem(item);
+  };
+
   return (
     <div className={CLASSES.container}>
       <h2 className={CLASSES.title}>Inventory</h2>
@@ -102,9 +112,15 @@ export function Inventory() {
                 <Button variant="warning" onClick={() => showEditItem(index, item)}>
                   Edit
                 </Button>
-                <Button variant="danger" onClick={() => removeItem(item)}>
-                  Delete
-                </Button>
+                {itemToConfirm === index ? (
+                  <Button variant="danger" onClick={() => handleConfirmDelete(item)}>
+                    Confirm
+                  </Button>
+                ) : (
+                  <Button variant="warning" onClick={() => handleDeleteClick(index)}>
+                    Delete
+                  </Button>
+                )}
               </div>
             ))}
           </div>
