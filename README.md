@@ -3,7 +3,8 @@ The brief:
 
 _We’ve got some data in a CSV file and we want to transfer it over to a database and add validation and checks to any changes made to the data. We should be able to add/edit/delete any rows added._
 
-https://github.com/user-attachments/assets/e23c4a58-f2a2-488f-ba96-734072ebcbed
+![Screenshot 2025-02-11 at 14 59 02](https://github.com/user-attachments/assets/bda56202-7b36-49c6-8683-7b8cb7c43b27)
+
 
 
 ## Prerequisites
