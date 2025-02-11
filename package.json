@@ -5,6 +5,7 @@
   "scripts": {
     "build": "cd client && npx rsbuild build",
     "start": "cd server && npx ts-node src/index.ts",
+    "install": "cd client && npm install && cd ../server && npm install",
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "lint": "cd client && npm run lint && cd ../server && npm run lint",
     "lint:fix": "cd client && npm run lint:fix && cd ../server && npm run lint:fix",

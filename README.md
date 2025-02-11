@@ -16,7 +16,7 @@ Before running this project, make sure you have the following installed:
 To install the dependencies, run the following command:
 
 ```bash
-npm run install:all
+npm install
 ```
 
 ## Start the project
