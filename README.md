@@ -1,5 +1,7 @@
 # Zapp Coding Test
+The brief:
 
+_We’ve got some data in a CSV file and we want to transfer it over to a database and add validation and checks to any changes made to the data. We should be able to add/edit/delete any rows added._
 
 https://github.com/user-attachments/assets/e23c4a58-f2a2-488f-ba96-734072ebcbed
 

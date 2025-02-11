@@ -22,10 +22,11 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
   const refreshInventory = useInventoryStore((state) => state.refreshInventory);
   const removeItem = usePreviewStore((state) => state.removeItem);
   const clearItems = usePreviewStore((state) => state.clearItems);
+  const editItem = usePreviewStore((state) => state.editItem);
 
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
-  const [showAddItem, setShowAddItem] = useState<boolean>(false);
+  const [shouldShowAddItem, setShouldShowAddItem] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   if (items.length === 0) return null;
@@ -37,9 +38,9 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
     { name: 'store', header: 'Store' },
   ];
 
-  const showEditItem = itemToEdit && itemToEditIndex !== -1;
+  const shouldShowEditItem = itemToEdit && itemToEditIndex !== -1;
 
-  const showActions = !showAddItem && !showEditItem;
+  const shouldShowActions = !shouldShowAddItem && !shouldShowEditItem;
 
   const updateItem = (item: Partial<Item>) => {
     setItemToEdit((prevItem) => {
@@ -48,9 +49,14 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
     });
   };
 
-  const editItem = (index: number, item: Item) => {
+  const showEditItem = (index: number, item: Item) => {
     setItemToEdit(item);
     setItemToEditIndex(index);
+  };
+
+  const handleEditItem = (validatedItem: Item) => {
+    editItem(itemToEditIndex, validatedItem);
+    hideEditItem();
   };
 
   const hideEditItem = () => {
@@ -59,7 +65,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
   };
 
   const hideAddItem = () => {
-    setShowAddItem(false);
+    setShouldShowAddItem(false);
   };
 
   return (
@@ -69,9 +75,9 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
         <div className={CLASSES.tableSection}>
           <div className={CLASSES.table}>
             <Table data={items} columns={columns} rowKey="sku" />
-            {showActions && (
+            {shouldShowActions && (
               <div className={CLASSES.tableActions}>
-                <Button variant="primary" onClick={() => setShowAddItem(true)}>
+                <Button variant="primary" onClick={() => setShouldShowAddItem(true)}>
                   Add Item
                 </Button>
                 <Button
@@ -96,7 +102,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
           <div className={CLASSES.itemActions}>
             {items.map((_, index) => (
               <div key={index} className={CLASSES.itemActionsButtonGroup}>
-                <Button variant="warning" onClick={() => editItem(index, items[index])}>
+                <Button variant="warning" onClick={() => showEditItem(index, items[index])}>
                   Edit
                 </Button>
                 <Button variant="danger" onClick={() => removeItem(index)}>
@@ -106,16 +112,15 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
             ))}
           </div>
         </div>
-        {showEditItem && (
+        {shouldShowEditItem && (
           <EditItem
-            index={itemToEditIndex}
             item={itemToEdit}
             updateItem={updateItem}
-            onSave={hideEditItem}
+            onSave={handleEditItem}
             onCancel={hideEditItem}
           />
         )}
-        {showAddItem && <AddItem onSave={hideAddItem} onCancel={hideAddItem} />}
+        {shouldShowAddItem && <AddItem onSave={hideAddItem} onCancel={hideAddItem} />}
       </div>
     </div>
   );

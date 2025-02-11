@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { usePreviewStore } from '../store/useStore';
 import { Item } from '../types/item';
 import { Button, Input } from './ui';
 import { ZodError } from 'zod';
@@ -12,19 +11,16 @@ const CLASSES = {
 } as const;
 
 export function EditItem({
-  index,
   item,
   updateItem,
   onSave,
   onCancel,
 }: {
-  index: number;
   item: Item;
   updateItem: (item: Partial<Item>) => void;
-  onSave: () => void;
+  onSave: (validatedItem: Item) => void;
   onCancel: () => void;
 }) {
-  const editItem = usePreviewStore((state) => state.editItem);
   const [error, setError] = useState<string | null>(null);
 
   return (
@@ -59,8 +55,7 @@ export function EditItem({
             onClick={() => {
               try {
                 const validatedItem = Item.parse(item);
-                editItem(index, validatedItem);
-                onSave();
+                onSave(validatedItem);
               } catch (error) {
                 if (error instanceof ZodError) {
                   setError(error.issues[0].message);

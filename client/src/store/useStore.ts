@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import type { Item } from '../types/item';
-import type { InventoryItem } from '../types/inventoryItem';
+import { Item } from '../types/item';
 import { Inventory } from '../types/inventory';
 
 interface PreviewStore {
@@ -13,11 +12,15 @@ interface PreviewStore {
 }
 
 interface InventoryStore {
-  inventory: InventoryItem[];
+  inventory: Item[];
   refreshError: string | null;
   submitError: string | null;
+  deleteError: string | null;
+  editError: string | null;
   refreshInventory: () => Promise<void>;
   submitItems: (items: Item[]) => Promise<void>;
+  removeItem: (item: Item) => Promise<void>;
+  editItem: (oldItem: Item, newItem: Item) => Promise<void>;
 }
 
 export const usePreviewStore = create<PreviewStore>((set) => ({
@@ -66,6 +69,8 @@ export const useInventoryStore = create<InventoryStore>((set) => ({
   inventory: [],
   refreshError: null,
   submitError: null,
+  deleteError: null,
+  editError: null,
   refreshInventory: async () => {
     try {
       const response = await fetch('/api/inventory');
@@ -99,6 +104,53 @@ export const useInventoryStore = create<InventoryStore>((set) => ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit items';
       set({ submitError: errorMessage });
+      throw err;
+    }
+  },
+  removeItem: async (item) => {
+    try {
+      const response = await fetch(`/api/inventory/${item.sku}`, {
+        method: 'DELETE',
+      });
+
+      await parseResponse(response);
+
+      set((state) => ({
+        inventory: state.inventory.filter((i) => i.sku !== item.sku),
+        deleteError: null,
+      }));
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : `Failed to delete item with SKU ${item.sku}`;
+      set({ deleteError: errorMessage });
+      throw err;
+    }
+  },
+  editItem: async (oldItem, newItem) => {
+    try {
+      const response = await fetch(`/api/inventory/${oldItem.sku}`, {
+        method: 'PUT',
+        body: JSON.stringify(newItem),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await parseResponse(response);
+
+      try {
+        const updatedItem = Item.parse(data);
+        set((state) => ({
+          inventory: state.inventory.map((row) => (row.sku === oldItem.sku ? updatedItem : row)),
+          editError: null,
+        }));
+      } catch (err) {
+        throw new Error('Invalid inventory data format received from server');
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : `Failed to edit item with SKU ${oldItem.sku}`;
+      set({ editError: errorMessage });
       throw err;
     }
   },

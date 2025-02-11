@@ -127,6 +127,74 @@ describe('API Routes', () => {
     });
   });
 
+  describe('PUT /api/inventory/:sku', () => {
+    it('should update an existing inventory item', async () => {
+      // Insert initial item
+      const originalItem = {
+        quantity: 10,
+        sku: 'UK-1011',
+        description: 'Original Item',
+        store: 'Store A',
+      };
+
+      await request(app).post('/api/inventory').send([originalItem]).expect(201);
+
+      // Update the item
+      const updatedItem = {
+        quantity: 20,
+        sku: 'UK-1011',
+        description: 'Updated Item',
+        store: 'Store B',
+      };
+
+      const response = await request(app)
+        .put(`/api/inventory/${originalItem.sku}`)
+        .send(updatedItem)
+        .expect(200);
+
+      expect(response.body).toMatchObject(updatedItem);
+
+      // Verify the update in the database
+      const getResponse = await request(app).get('/api/inventory').expect(200);
+
+      expect(getResponse.body).toHaveLength(1);
+      expect(getResponse.body[0]).toMatchObject(updatedItem);
+    });
+
+    it('should return 404 when updating non-existent item', async () => {
+      const item = {
+        quantity: 20,
+        sku: 'UK-9999',
+        description: 'Updated Item',
+        store: 'Store B',
+      };
+
+      await request(app).put(`/api/inventory/${item.sku}`).send(item).expect(404);
+    });
+
+    it('should return 400 for invalid update data', async () => {
+      // Insert initial item
+      const originalItem = {
+        quantity: 10,
+        sku: 'UK-1011',
+        description: 'Original Item',
+        store: 'Store A',
+      };
+
+      await request(app).post('/api/inventory').send([originalItem]).expect(201);
+
+      // Try to update with invalid data
+      const invalidUpdate = {
+        quantity: 'not a number',
+        sku: 'UK-1011',
+        description: 'Updated Item',
+        store: 'Store B',
+      };
+
+      await request(app).put(`/api/inventory/${originalItem.sku}`).send(invalidUpdate).expect(400);
+    });
+  });
+
   describe('GET /api/inventory', () => {
     it('should return all inventory items in descending order', async () => {
       // GIVEN
@@ -152,6 +220,31 @@ describe('API Routes', () => {
           ...inventoryData[0],
         },
       ]);
+    });
+  });
+
+  describe('DELETE /api/inventory/:sku', () => {
+    it('should delete an inventory item', async () => {
+      const item = {
+        quantity: 5,
+        sku: 'UK-1011',
+        description: 'Item',
+        store: 'Store A',
+      };
+
+      await request(app).post('/api/inventory').send([item]).expect(201);
+
+      const response = await request(app).delete('/api/inventory/UK-1011').expect(200);
+
+      expect(response.body).toMatchObject({ message: 'Success' });
+
+      const getResponse = await request(app).get('/api/inventory');
+      expect(getResponse.body).toHaveLength(0);
+    });
+
+    it('should return 404 if item is not found', async () => {
+      const response = await request(app).delete('/api/inventory/UK-1011').expect(404);
+      expect(response.body).toMatchObject({ error: 'Inventory item not found' });
     });
   });
 });

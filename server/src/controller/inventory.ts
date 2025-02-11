@@ -1,10 +1,22 @@
+import { ZodError } from 'zod';
 import { Request, Response } from 'express';
 import { Inventory, InventorySchema } from '../validator/inventory';
 import { getDatabase } from '../db';
+import { Item } from '../validator/item';
 
-export function updateInventory(req: Request, res: Response) {
+export function createOrUpdateInventory(req: Request, res: Response) {
   try {
-    const inventoryList = InventorySchema.parse(req.body);
+    let inventoryList: Item[];
+
+    // Parse the request body
+    try {
+      inventoryList = InventorySchema.parse(req.body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(400).json({ error: 'Failed to parse request body' });
+    }
 
     // Check for duplicate SKUs within the request
     const skus = inventoryList.map((item) => item.sku);
@@ -46,10 +58,9 @@ export function updateInventory(req: Request, res: Response) {
     res.status(201).json(insertedItems);
   } catch (error) {
     if (error instanceof Error) {
-      res.status(400).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: 'Failed to create inventory' });
+      console.error(error.message);
     }
+    res.status(500).json({ error: 'Failed to create inventory' });
   }
 }
 
@@ -77,4 +88,58 @@ export function getInventory(req: Request, res: Response) {
     console.error('Error fetching inventory:', error);
     res.status(500).json({ error: 'Failed to fetch inventory' });
   }
+}
+
+export function deleteInventory(req: Request, res: Response) {
+  const { sku } = req.params;
+  const db = getDatabase();
+  if (!db) {
+    return res.status(500).json({ error: 'Database not found' });
+  }
+
+  const deleteItem = db.prepare(`
+    DELETE FROM inventory WHERE sku = ?
+  `);
+
+  const result = deleteItem.run(sku);
+
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Inventory item not found' });
+  }
+
+  res.status(200).json({ message: 'Success' });
+}
+
+export function updateInventory(req: Request, res: Response) {
+  const { sku } = req.params;
+  const { quantity, description, store } = req.body;
+
+  let item: Item;
+
+  // Parse the request body
+  try {
+    item = Item.parse(req.body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({ error: error.message });
+    }
+    return res.status(400).json({ error: 'Failed to parse request body' });
+  }
+
+  const db = getDatabase();
+  if (!db) {
+    return res.status(500).json({ error: 'Database not found' });
+  }
+
+  const updateItem = db.prepare(`
+    UPDATE inventory SET quantity = ?, description = ?, store = ? WHERE sku = ?
+  `);
+
+  const result = updateItem.run(quantity, description, store, sku);
+
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Inventory item not found' });
+  }
+
+  res.status(200).json(item);
 }

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const Item = z.object({
+  id: z.number().optional(),
   quantity: z.coerce.number(),
   sku: z.string().regex(/^[A-Za-z]{2}-\d{4}$/, 'SKU must be in the format AA-0000'),
   description: z.string(),

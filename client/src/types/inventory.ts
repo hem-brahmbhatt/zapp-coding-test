@@ -1,4 +1,4 @@
 import { z } from 'zod';
-import { InventoryItem } from './inventoryItem';
+import { Item } from './item';
 
-export const Inventory = z.array(InventoryItem);
+export const Inventory = z.array(Item);
