@@ -3,16 +3,17 @@ import { useInventoryStore } from '../store/useStore';
 import { Table, Button } from './ui';
 import { Item } from '../types/item';
 import { EditItem } from './EditItem';
+import { AddItem } from './AddItem';
 
 const CLASSES = {
   container: 'mt-8',
   title: 'text-xl font-bold mb-4',
   tableSection: 'flex gap-4',
   table: 'flex-1 flex flex-col',
+  tableActions: 'mt-4 flex gap-2',
   content: 'flex gap-4 w-full flex-1 flex-col',
   itemActions: 'flex flex-col justify-start gap-4 pt-[3.7rem]',
   itemActionsButtonGroup: 'flex gap-2',
-  actionsButtonGroup: 'mt-4 flex gap-2',
 } as const;
 
 const columns = [
@@ -27,9 +28,10 @@ export function Inventory() {
   const refreshInventory = useInventoryStore((state) => state.refreshInventory);
   const removeItem = useInventoryStore((state) => state.removeItem);
   const editItem = useInventoryStore((state) => state.editItem);
-
+  const submitItems = useInventoryStore((state) => state.submitItems);
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
+  const [shouldShowAddItem, setShouldShowAddItem] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => refreshInventory();
@@ -63,6 +65,16 @@ export function Inventory() {
     setItemToEditIndex(-1);
   };
 
+  const handleAddItem = async (item: Item) => {
+    await submitItems([item]);
+    hideAddItem();
+    await refreshInventory();
+  };
+
+  const hideAddItem = () => {
+    setShouldShowAddItem(false);
+  };
+
   return (
     <div className={CLASSES.container}>
       <h2 className={CLASSES.title}>Inventory</h2>
@@ -70,7 +82,7 @@ export function Inventory() {
         <div className={CLASSES.tableSection}>
           <div className={CLASSES.table}>
             <Table data={inventory} columns={columns} rowKey="sku" />
-            <div className={CLASSES.actionsButtonGroup}>
+            <div className={CLASSES.tableActions}>
               <Button
                 variant="primary"
                 onClick={async () => {
@@ -78,6 +90,9 @@ export function Inventory() {
                 }}
               >
                 Refresh
+              </Button>
+              <Button variant="primary" onClick={() => setShouldShowAddItem(true)}>
+                Add Item
               </Button>
             </div>
           </div>
@@ -102,6 +117,7 @@ export function Inventory() {
             onCancel={hideEditItem}
           />
         )}
+        {shouldShowAddItem && <AddItem onSave={handleAddItem} onCancel={hideAddItem} />}
       </div>
     </div>
   );

@@ -75,7 +75,7 @@ On the server:
 - The data is keyed by SKU. If rows with the same SKU are uploaded, the data will be overwritten. In production, we would want to put limits in place for bulk updates across multiple rows.
 - Both front-end and back-end validates that duplicate SKUs are not added in the same request.
 - Inventory list (i.e. the list of items in the database) is in descending order, so the latest items are at the top. 
-- The following improvements would be needed to support a real API
+- The following API improvements would be needed to support a real use case:
     - Pagination
     - Parameterize the order
     - Sorting

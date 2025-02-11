@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ZodError } from 'zod';
-import { usePreviewStore } from '../store/useStore';
 import { Button, Input } from './ui';
 import { Item } from '../types/item';
 
@@ -11,7 +10,7 @@ const CLASSES = {
   error: 'text-red-500 mt-2',
 } as const;
 
-export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: () => void }) {
+export function AddItem({ onSave, onCancel }: { onSave: (item: Item) => void; onCancel: () => void }) {
   const [item, setItem] = useState({
     quantity: 0,
     sku: '',
@@ -19,8 +18,6 @@ export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: ()
     store: '',
   });
   const [error, setError] = useState<string | null>(null);
-
-  const addItem = usePreviewStore((state) => state.addItem);
 
   const resetInputs = () => {
     setItem({
@@ -65,9 +62,8 @@ export function AddItem({ onSave, onCancel }: { onSave: () => void; onCancel: ()
             onClick={() => {
               try {
                 const validatedItem = Item.parse(item);
-                addItem(validatedItem);
+                onSave(validatedItem);
                 resetInputs();
-                onSave();
               } catch (error) {
                 if (error instanceof ZodError) {
                   setError(error.issues[0].message);

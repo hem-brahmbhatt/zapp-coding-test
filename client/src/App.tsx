@@ -1,6 +1,6 @@
 import { DragAndDrop } from './components/ui';
 import { Preview, Inventory } from './components';
-import { usePreviewStore } from './store/useStore';
+import { usePreviewStore, useInventoryStore } from './store/useStore';
 import { CsvSchema } from './types/csv';
 
 const CLASSES = {
@@ -12,6 +12,7 @@ const CLASSES = {
 function App() {
   const addItems = usePreviewStore((state) => state.addItems);
   const items = usePreviewStore((state) => state.items);
+  const inventory = useInventoryStore((state) => state.inventory);
 
   const handleCSVFile = async (file: File) => {
     const text = await file.text();
@@ -30,12 +31,14 @@ function App() {
     }
   };
 
+  const dragAndDropLabel = inventory.length > 0 ? 'Drop CSV file here to update inventory with matching SKUs' : 'Drop CSV file here to add to inventory';
+
   return (
     <div className={CLASSES.container}>
       <div className={CLASSES.innerContainer}>
         <h1 className={CLASSES.title}>Zapp Test</h1>
         {items.length === 0 && (
-          <DragAndDrop onFileDrop={handleCSVFile} label="Drop CSV file here" />
+          <DragAndDrop onFileDrop={handleCSVFile} label={dragAndDropLabel} />
         )}
         <Preview />
         <Inventory />

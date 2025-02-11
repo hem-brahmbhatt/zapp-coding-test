@@ -23,6 +23,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
   const removeItem = usePreviewStore((state) => state.removeItem);
   const clearItems = usePreviewStore((state) => state.clearItems);
   const editItem = usePreviewStore((state) => state.editItem);
+  const addItem = usePreviewStore((state) => state.addItem);
 
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
   const [itemToEditIndex, setItemToEditIndex] = useState<number>(-1);
@@ -66,6 +67,11 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
 
   const hideAddItem = () => {
     setShouldShowAddItem(false);
+  };
+
+  const handleAddItem = (item: Item) => {
+    addItem(item);
+    hideAddItem();
   };
 
   return (
@@ -120,7 +126,7 @@ export function Preview({ onSubmitItems }: { onSubmitItems?: () => void }) {
             onCancel={hideEditItem}
           />
         )}
-        {shouldShowAddItem && <AddItem onSave={hideAddItem} onCancel={hideAddItem} />}
+        {shouldShowAddItem && <AddItem onSave={handleAddItem} onCancel={hideAddItem} />}
       </div>
     </div>
   );
