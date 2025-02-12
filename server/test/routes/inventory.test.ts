@@ -7,6 +7,8 @@ import { resetDatabase, closeDatabase } from '../../src/db';
 describe('API Routes', () => {
   let app: express.Application;
 
+  console.error = jest.fn();
+
   beforeEach(() => {
     resetDatabase();
 
@@ -31,7 +33,7 @@ describe('API Routes', () => {
         {
           quantity: 20,
           sku: 'UK-1012',
-          description: 'Test Item 2',
+          description: 'Test Igstem 2',
           store: 'Store B',
         },
       ];
