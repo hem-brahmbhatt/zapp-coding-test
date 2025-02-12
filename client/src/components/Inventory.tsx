@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useInventoryStore } from '../store/useStore';
+import { useInventoryStore } from '../store/useInventoryStore';
 import { Table, Button } from './ui';
 import { Item } from '../types/item';
 import { EditItem } from './EditItem';

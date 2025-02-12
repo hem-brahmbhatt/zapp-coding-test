@@ -1,6 +1,7 @@
 import { DragAndDrop } from './components/ui';
 import { Preview, Inventory } from './components';
-import { usePreviewStore, useInventoryStore } from './store/useStore';
+import { useInventoryStore } from './store/useInventoryStore';
+import { usePreviewStore } from './store/usePreviewStore';
 import { CsvSchema } from './types/csv';
 
 const CLASSES = {

@@ -42,7 +42,7 @@ export function AddItem({
           type="number"
           value={item.quantity}
           onChange={(e) =>
-            setItem((prevItem) => ({ ...prevItem, quantity: parseInt(e.target.value) }))
+            setItem((prevItem) => ({ ...prevItem, quantity: Number(e.target.value) }))
           }
         />
         <Input

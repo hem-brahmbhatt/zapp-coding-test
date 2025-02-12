@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { usePreviewStore, useInventoryStore } from '../store/useStore';
+import { useInventoryStore } from '../store/useInventoryStore';
+import { usePreviewStore } from '../store/usePreviewStore';
 import type { Item } from '../types/item';
 import { Table, Button } from './ui';
 import { EditItem, AddItem } from './';

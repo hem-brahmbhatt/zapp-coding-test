@@ -30,7 +30,7 @@ export function EditItem({
           label="Quantity"
           type="number"
           value={item.quantity}
-          onChange={(e) => updateItem({ quantity: parseInt(e.target.value) })}
+          onChange={(e) => updateItem({ quantity: Number(e.target.value) })}
         />
         <Input
           label="SKU"

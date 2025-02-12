@@ -1,4 +1,4 @@
-import { useInventoryStore } from '../../src/store/useStore';
+import { useInventoryStore } from '../../src/store/useInventoryStore';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Item } from '../../src/types/item';
 import { vi } from 'vitest';
